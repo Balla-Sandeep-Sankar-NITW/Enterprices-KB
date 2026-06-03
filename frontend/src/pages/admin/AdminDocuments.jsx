@@ -9,18 +9,20 @@ import toast from 'react-hot-toast'
 import { format } from 'date-fns'
 import clsx from 'clsx'
 
+// Updated for glowing accents on a dark layout
 const statusConfig = {
-  processed: { label: 'Ready', icon: CheckCircle, className: 'bg-green-50 text-green-700' },
-  processing: { label: 'Processing', icon: Loader, className: 'bg-blue-50 text-blue-700', spin: true },
-  uploaded: { label: 'Queued', icon: Clock, className: 'bg-yellow-50 text-yellow-700' },
-  failed: { label: 'Failed', icon: AlertCircle, className: 'bg-red-50 text-red-700' },
+  processed: { label: 'Ready', icon: CheckCircle, className: 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' },
+  processing: { label: 'Processing', icon: Loader, className: 'bg-blue-500/10 text-blue-400 border border-blue-500/20', spin: true },
+  uploaded: { label: 'Queued', icon: Clock, className: 'bg-amber-500/10 text-amber-400 border border-amber-500/20' },
+  failed: { label: 'Failed', icon: AlertCircle, className: 'bg-rose-500/10 text-rose-400 border border-rose-500/20' },
 }
 
+// Updated for vibrant document tags against dark surfaces
 const fileIconMap = {
-  pdf: { icon: FileText, color: 'text-red-500 bg-red-50' },
-  docx: { icon: FileText, color: 'text-blue-500 bg-blue-50' },
-  txt: { icon: File, color: 'text-gray-500 bg-gray-50' },
-  xlsx: { icon: FileSpreadsheet, color: 'text-green-500 bg-green-50' },
+  pdf: { icon: FileText, color: 'text-rose-400 bg-rose-500/10' },
+  docx: { icon: FileText, color: 'text-blue-400 bg-blue-500/10' },
+  txt: { icon: File, color: 'text-slate-400 bg-slate-500/10' },
+  xlsx: { icon: FileSpreadsheet, color: 'text-emerald-400 bg-emerald-500/10' },
 }
 
 function formatBytes(bytes) {
@@ -44,7 +46,7 @@ export default function AdminDocuments() {
   const { data, isLoading, refetch } = useQuery({
     queryKey: ['admin-documents', search, deptFilter, page],
     queryFn: () => documentsApi.list({ search, department_id: deptFilter || undefined, page, per_page: 20 }).then(r => r.data),
-    refetchInterval: 10000, // Poll for processing status
+    refetchInterval: 10000,
   })
 
   const { data: departments } = useQuery({
@@ -100,36 +102,48 @@ export default function AdminDocuments() {
   }
 
   return (
-    <div className="h-full flex flex-col bg-gray-50">
+    <div className="h-full flex flex-col bg-[#0d0f13]">
       {/* Header */}
-      <div className="bg-white border-b border-gray-200 px-6 py-4">
-        <div className="flex items-center justify-between">
+      <div className="bg-[#13151a] border-b border-white/[0.06] px-6 py-5 relative overflow-hidden">
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-white/[0.02] to-transparent" />
+        
+        <div className="relative flex items-center justify-between">
           <div>
-            <h1 className="text-xl font-bold text-gray-900">Documents</h1>
-            <p className="text-sm text-gray-500 mt-0.5">Upload and manage knowledge base documents</p>
+            <h1 className="text-xl font-bold tracking-tight text-slate-100">Documents</h1>
+            <p className="text-sm text-slate-300 mt-0.5">Upload and manage knowledge base documents</p>
           </div>
-          <button onClick={() => setShowUpload(true)} className="btn-primary flex items-center gap-2">
+          <button 
+            onClick={() => setShowUpload(true)} 
+            className="flex items-center gap-2 rounded-xl bg-amber-500/10 border border-amber-500/20 px-4 py-2 text-sm font-medium text-amber-400 transition-all hover:bg-amber-500/20 shadow-lg shadow-black/20"
+          >
             <Upload className="w-4 h-4" />
             Upload Document
           </button>
         </div>
 
-        <div className="flex gap-3 mt-4">
+        <div className="relative flex gap-3 mt-5">
           <div className="relative flex-1 max-w-xs">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
             <input
               type="text"
               placeholder="Search documents..."
               value={search}
               onChange={e => { setSearch(e.target.value); setPage(1) }}
-              className="input pl-9"
+              className="w-full rounded-xl border border-white/[0.06] bg-[#0d0f13] pl-9 pr-4 py-2 text-sm text-slate-100 placeholder-slate-400 focus:outline-none focus:border-white/[0.15] transition-colors"
             />
           </div>
-          <select value={deptFilter} onChange={e => { setDeptFilter(e.target.value); setPage(1) }} className="input w-48">
-            <option value="">All departments</option>
-            {departments?.map(d => <option key={d.id} value={d.id}>{d.name}</option>)}
+          <select 
+            value={deptFilter} 
+            onChange={e => { setDeptFilter(e.target.value); setPage(1) }} 
+            className="rounded-xl border border-white/[0.06] bg-[#0d0f13] px-3 py-2 text-sm text-slate-300 focus:outline-none focus:border-white/[0.15] transition-colors w-48"
+          >
+            <option value="" className="bg-[#13151a]">All departments</option>
+            {departments?.map(d => <option key={d.id} value={d.id} className="bg-[#13151a]">{d.name}</option>)}
           </select>
-          <button onClick={() => refetch()} className="btn-secondary flex items-center gap-1.5 text-sm px-3">
+          <button 
+            onClick={() => refetch()} 
+            className="rounded-xl border border-white/[0.08] bg-white/[0.04] px-4 py-2 text-sm font-medium text-slate-300 transition-all hover:border-white/[0.15] hover:bg-white/[0.08] hover:text-slate-100 flex items-center gap-1.5"
+          >
             <RefreshCw className="w-3.5 h-3.5" /> Refresh
           </button>
         </div>
@@ -138,25 +152,26 @@ export default function AdminDocuments() {
       {/* Document list */}
       <div className="flex-1 overflow-y-auto p-6">
         {isLoading ? (
-          <div className="flex justify-center py-12"><Loader className="w-5 h-5 animate-spin text-primary-600" /></div>
+          <div className="flex justify-center py-12"><Loader className="w-5 h-5 animate-spin text-amber-400" /></div>
         ) : !data?.documents?.length ? (
-          <div className="text-center py-16 text-gray-400">
-            <FileText className="w-12 h-12 mx-auto mb-3 opacity-30" />
-            <p className="font-medium">No documents yet</p>
-            <p className="text-sm">Upload your first document to get started.</p>
+          <div className="text-center py-16 text-slate-400">
+            <FileText className="w-12 h-12 mx-auto mb-3 opacity-20 text-slate-300" />
+            <p className="font-medium text-slate-200">No documents yet</p>
+            <p className="text-sm text-slate-400">Upload your first document to get started.</p>
           </div>
         ) : (
           <>
-            <div className="card overflow-hidden">
-              <table className="w-full text-sm">
-                <thead className="bg-gray-50 border-b border-gray-200">
+            <div className="relative overflow-hidden rounded-2xl border border-white/[0.06] bg-[#13151a] shadow-xl shadow-black/20">
+              <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-white/[0.02] to-transparent" />
+              <table className="w-full text-sm relative">
+                <thead className="bg-[#181a21] border-b border-white/[0.06]">
                   <tr>
                     {['Document', 'Department', 'Size', 'Pages', 'Status', 'Uploaded', 'Actions'].map(h => (
-                      <th key={h} className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">{h}</th>
+                      <th key={h} className="text-left px-5 py-3.5 text-xs font-medium uppercase tracking-widest text-slate-300">{h}</th>
                     ))}
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-100">
+                <tbody className="divide-y divide-white/[0.04]">
                   {data.documents.map(doc => {
                     const fileConf = fileIconMap[doc.file_type] || fileIconMap.txt
                     const FileIcon = fileConf.icon
@@ -164,34 +179,34 @@ export default function AdminDocuments() {
                     const StatusIcon = st.icon
 
                     return (
-                      <tr key={doc.id} className="hover:bg-gray-50">
-                        <td className="px-4 py-3">
+                      <tr key={doc.id} className="hover:bg-white/[0.01] transition-colors group">
+                        <td className="px-5 py-3.5">
                           <div className="flex items-center gap-3">
-                            <div className={clsx('w-8 h-8 rounded-lg flex items-center justify-center shrink-0', fileConf.color)}>
+                            <div className={clsx('w-9 h-9 rounded-xl flex items-center justify-center shrink-0 shadow-inner', fileConf.color)}>
                               <FileIcon className="w-4 h-4" />
                             </div>
                             <div className="min-w-0">
-                              <p className="font-medium text-gray-900 truncate max-w-[200px]">{doc.title}</p>
-                              <p className="text-xs text-gray-400 truncate max-w-[200px]">{doc.original_filename}</p>
+                              <p className="font-medium text-slate-100 truncate max-w-[200px] group-hover:text-white transition-colors">{doc.title}</p>
+                              <p className="text-xs text-slate-300 truncate max-w-[200px] mt-0.5">{doc.original_filename}</p>
                             </div>
                           </div>
                         </td>
-                        <td className="px-4 py-3 text-gray-600">{doc.department_name || '—'}</td>
-                        <td className="px-4 py-3 text-gray-500">{formatBytes(doc.file_size)}</td>
-                        <td className="px-4 py-3 text-gray-500">{doc.total_pages ?? '—'}</td>
-                        <td className="px-4 py-3">
-                          <span className={clsx('badge', st.className)}>
-                            <StatusIcon className={clsx('w-3 h-3 mr-1', st.spin && 'animate-spin')} />
+                        <td className="px-5 py-3.5 text-slate-300">{doc.department_name || '—'}</td>
+                        <td className="px-5 py-3.5 text-slate-300">{formatBytes(doc.file_size)}</td>
+                        <td className="px-5 py-3.5 text-slate-300">{doc.total_pages ?? '—'}</td>
+                        <td className="px-5 py-3.5">
+                          <span className={clsx('inline-flex items-center rounded-lg px-2.5 py-1 text-xs font-medium shadow-sm', st.className)}>
+                            <StatusIcon className={clsx('w-3 h-3 mr-1.5', st.spin && 'animate-spin')} />
                             {st.label}
                           </span>
                         </td>
-                        <td className="px-4 py-3 text-gray-500">{format(new Date(doc.created_at), 'MMM d, yy')}</td>
-                        <td className="px-4 py-3">
+                        <td className="px-5 py-3.5 text-slate-300">{format(new Date(doc.created_at), 'MMM d, yy')}</td>
+                        <td className="px-5 py-3.5">
                           <div className="flex items-center gap-1">
                             {doc.status === 'failed' && (
                               <button
                                 onClick={() => reprocessMutation.mutate(doc.id)}
-                                className="p-1.5 rounded-lg text-blue-600 hover:bg-blue-50 transition-colors"
+                                className="p-1.5 rounded-lg text-blue-400 hover:bg-blue-500/10 border border-transparent hover:border-blue-500/20 transition-all"
                                 title="Reprocess"
                               >
                                 <RefreshCw className="w-4 h-4" />
@@ -199,7 +214,7 @@ export default function AdminDocuments() {
                             )}
                             <button
                               onClick={() => { if (confirm('Delete this document?')) deleteMutation.mutate(doc.id) }}
-                              className="p-1.5 rounded-lg text-gray-400 hover:bg-red-50 hover:text-red-600 transition-colors"
+                              className="p-1.5 rounded-lg text-slate-400 hover:bg-rose-500/10 hover:text-rose-400 border border-transparent hover:border-rose-500/20 transition-all"
                               title="Delete"
                             >
                               <Trash2 className="w-4 h-4" />
@@ -214,10 +229,22 @@ export default function AdminDocuments() {
             </div>
 
             {data.pages > 1 && (
-              <div className="flex justify-center gap-2 mt-4">
-                <button onClick={() => setPage(p => p - 1)} disabled={page === 1} className="btn-secondary text-sm px-3 py-1.5">Prev</button>
-                <span className="text-sm text-gray-600 py-1.5">Page {page} of {data.pages}</span>
-                <button onClick={() => setPage(p => p + 1)} disabled={page === data.pages} className="btn-secondary text-sm px-3 py-1.5">Next</button>
+              <div className="flex justify-center gap-2 mt-5">
+                <button 
+                  onClick={() => setPage(p => p - 1)} 
+                  disabled={page === 1} 
+                  className="rounded-xl border border-white/[0.08] bg-white/[0.04] px-3 py-1.5 text-sm font-medium text-slate-300 transition-all hover:border-white/[0.15] hover:bg-white/[0.08] hover:text-slate-100 disabled:opacity-30 disabled:pointer-events-none"
+                >
+                  Prev
+                </button>
+                <span className="text-sm text-slate-300 py-1.5 px-2">Page {page} of {data.pages}</span>
+                <button 
+                  onClick={() => setPage(p => p + 1)} 
+                  disabled={page === data.pages} 
+                  className="rounded-xl border border-white/[0.08] bg-white/[0.04] px-3 py-1.5 text-sm font-medium text-slate-300 transition-all hover:border-white/[0.15] hover:bg-white/[0.08] hover:text-slate-100 disabled:opacity-30 disabled:pointer-events-none"
+                >
+                  Next
+                </button>
               </div>
             )}
           </>
@@ -226,90 +253,94 @@ export default function AdminDocuments() {
 
       {/* Upload Modal */}
       {showUpload && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="card p-6 max-w-lg w-full">
-            <div className="flex items-center justify-between mb-5">
-              <h2 className="font-bold text-gray-900 text-lg">Upload Document</h2>
-              <button onClick={() => setShowUpload(false)} className="text-gray-400 hover:text-gray-600">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 transition-all">
+          <div className="relative overflow-hidden rounded-2xl border border-white/[0.08] bg-[#13151a] p-6 max-w-lg w-full shadow-2xl shadow-black/80">
+            <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-white/[0.03] to-transparent" />
+            
+            <div className="relative flex items-center justify-between mb-5">
+              <h2 className="font-bold text-slate-100 text-lg tracking-tight">Upload Document</h2>
+              <button onClick={() => setShowUpload(false)} className="text-slate-400 hover:text-slate-200 transition-colors">
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <div className="space-y-4">
+            <div className="relative space-y-4">
               {/* File drop zone */}
               <div
                 onClick={() => fileInputRef.current?.click()}
                 className={clsx(
-                  'border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition-colors',
-                  selectedFile ? 'border-primary-400 bg-primary-50' : 'border-gray-300 hover:border-primary-300 hover:bg-gray-50'
+                  'border border-dashed rounded-xl p-6 text-center cursor-pointer transition-all duration-300',
+                  selectedFile 
+                    ? 'border-amber-500/40 bg-amber-500/[0.03]' 
+                    : 'border-white/[0.1] bg-[#0d0f13] hover:border-white/[0.2] hover:bg-white/[0.02]'
                 )}
               >
                 <input ref={fileInputRef} type="file" className="hidden" accept=".pdf,.docx,.txt,.xlsx" onChange={handleFileChange} />
                 {selectedFile ? (
                   <div>
-                    <FileText className="w-8 h-8 text-primary-600 mx-auto mb-2" />
-                    <p className="font-medium text-gray-900">{selectedFile.name}</p>
-                    <p className="text-xs text-gray-500">{formatBytes(selectedFile.size)}</p>
+                    <FileText className="w-8 h-8 text-amber-400 mx-auto mb-2" />
+                    <p className="font-medium text-slate-200 text-sm truncate max-w-xs mx-auto">{selectedFile.name}</p>
+                    <p className="text-xs text-slate-400 mt-0.5">{formatBytes(selectedFile.size)}</p>
                   </div>
                 ) : (
                   <div>
-                    <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-                    <p className="text-sm font-medium text-gray-600">Click to select file</p>
-                    <p className="text-xs text-gray-400">PDF, DOCX, TXT, XLSX — max 50MB</p>
+                    <Upload className="w-8 h-8 text-slate-400 mx-auto mb-2" />
+                    <p className="text-sm font-medium text-slate-300">Click to select file</p>
+                    <p className="text-xs text-slate-400 mt-1">PDF, DOCX, TXT, XLSX — max 50MB</p>
                   </div>
                 )}
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Title *</label>
+                <label className="block text-xs font-medium uppercase tracking-widest text-slate-300 mb-1.5">Title *</label>
                 <input
                   type="text"
                   value={uploadForm.title}
                   onChange={e => setUploadForm({ ...uploadForm, title: e.target.value })}
-                  className="input"
+                  className="w-full rounded-xl border border-white/[0.06] bg-[#0d0f13] px-4 py-2 text-sm text-slate-100 placeholder-slate-400 focus:outline-none focus:border-white/[0.15] transition-colors"
                   placeholder="Document title"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Department *</label>
+                <label className="block text-xs font-medium uppercase tracking-widest text-slate-300 mb-1.5">Department *</label>
                 <select
                   value={uploadForm.department_id}
                   onChange={e => setUploadForm({ ...uploadForm, department_id: e.target.value })}
-                  className="input"
+                  className="w-full rounded-xl border border-white/[0.06] bg-[#0d0f13] px-3 py-2 text-sm text-slate-300 focus:outline-none focus:border-white/[0.15] transition-colors"
                 >
-                  <option value="">Select department</option>
-                  {departments?.map(d => <option key={d.id} value={d.id}>{d.name}</option>)}
+                  <option value="" className="bg-[#13151a]">Select department</option>
+                  {departments?.map(d => <option key={d.id} value={d.id} className="bg-[#13151a]">{d.name}</option>)}
                 </select>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                <label className="block text-xs font-medium uppercase tracking-widest text-slate-300 mb-1.5">Description</label>
                 <textarea
                   value={uploadForm.description}
                   onChange={e => setUploadForm({ ...uploadForm, description: e.target.value })}
-                  className="input"
+                  className="w-full rounded-xl border border-white/[0.06] bg-[#0d0f13] px-4 py-2 text-sm text-slate-100 placeholder-slate-400 focus:outline-none focus:border-white/[0.15] transition-colors resize-none"
                   rows={2}
                   placeholder="Optional description..."
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Tags</label>
+                <label className="block text-xs font-medium uppercase tracking-widest text-slate-300 mb-1.5">Tags</label>
                 <input
                   type="text"
                   value={uploadForm.tags}
                   onChange={e => setUploadForm({ ...uploadForm, tags: e.target.value })}
-                  className="input"
+                  className="w-full rounded-xl border border-white/[0.06] bg-[#0d0f13] px-4 py-2 text-sm text-slate-100 placeholder-slate-400 focus:outline-none focus:border-white/[0.15] transition-colors"
                   placeholder="hr, policy, leave (comma separated)"
                 />
               </div>
 
-              <div className="flex gap-2 pt-2">
+              <div className="flex gap-2.5 pt-3">
                 <button
                   onClick={() => uploadMutation.mutate()}
                   disabled={!selectedFile || !uploadForm.title || !uploadForm.department_id || uploadMutation.isPending}
-                  className="btn-primary flex-1 flex items-center justify-center gap-2"
+                  className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-amber-500/10 border border-amber-500/20 px-4 py-2.5 text-sm font-medium text-amber-400 transition-all hover:bg-amber-500/20 disabled:opacity-30 disabled:pointer-events-none"
                 >
                   {uploadMutation.isPending ? (
                     <><Loader className="w-4 h-4 animate-spin" /> Uploading...</>
@@ -317,7 +348,12 @@ export default function AdminDocuments() {
                     <><Upload className="w-4 h-4" /> Upload</>
                   )}
                 </button>
-                <button onClick={() => setShowUpload(false)} className="btn-secondary flex-1">Cancel</button>
+                <button 
+                  onClick={() => setShowUpload(false)} 
+                  className="flex-1 rounded-xl border border-white/[0.08] bg-white/[0.04] px-4 py-2.5 text-sm font-medium text-slate-300 transition-all hover:border-white/[0.15] hover:bg-white/[0.08] hover:text-slate-100"
+                >
+                  Cancel
+                </button>
               </div>
             </div>
           </div>

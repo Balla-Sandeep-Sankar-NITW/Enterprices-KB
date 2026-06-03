@@ -112,13 +112,13 @@ export default function ChatPage() {
   const newChat = () => navigate('/chat')
 
   return (
-    <div className="flex h-full">
+    <div className="flex h-full bg-[#0d0f13] text-slate-200">
       {/* Sessions sidebar */}
-      <div className="w-64 bg-gray-900 flex flex-col h-full">
+      <div className="w-64 bg-[#13151a] flex flex-col h-full border-r border-white/[0.06]">
         <div className="p-3">
           <button
             onClick={newChat}
-            className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-gray-300 hover:bg-gray-700 border border-gray-600 hover:border-gray-500 transition-colors"
+            className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-orange-400 bg-orange-500/10 border border-orange-500/20 hover:bg-orange-500/20 transition-colors"
           >
             <Plus className="w-4 h-4" />
             New Chat
@@ -132,16 +132,16 @@ export default function ChatPage() {
               onClick={() => navigate(`/chat/${s.id}`)}
               className={clsx(
                 'group flex items-center justify-between px-3 py-2 rounded-lg cursor-pointer transition-colors',
-                currentSession?.id === s.id ? 'bg-gray-700 text-white' : 'text-gray-400 hover:bg-gray-800'
+                currentSession?.id === s.id ? 'bg-white/[0.04] text-white border border-white/[0.06]' : 'text-slate-200 hover:bg-white/[0.02]'
               )}
             >
               <div className="flex items-center gap-2 min-w-0">
-                <MessageSquare className="w-3.5 h-3.5 shrink-0" />
+                <MessageSquare className={clsx('w-3.5 h-3.5 shrink-0', currentSession?.id === s.id ? 'text-orange-400' : 'text-slate-300')} />
                 <span className="text-xs truncate">{s.title || 'New Chat'}</span>
               </div>
               <button
                 onClick={e => deleteSession(e, s.id)}
-                className="opacity-0 group-hover:opacity-100 p-0.5 rounded hover:text-red-400 transition-all"
+                className="opacity-0 group-hover:opacity-100 p-0.5 rounded hover:text-rose-400 transition-all"
               >
                 <Trash2 className="w-3 h-3" />
               </button>
@@ -151,11 +151,11 @@ export default function ChatPage() {
       </div>
 
       {/* Chat area */}
-      <div className="flex-1 flex flex-col bg-white">
+      <div className="flex-1 flex flex-col bg-[#0d0f13]">
         {/* Header */}
-        <div className="px-6 py-4 border-b border-gray-100 flex items-center gap-2">
-          <BookOpen className="w-5 h-5 text-primary-600" />
-          <h1 className="font-semibold text-gray-900">
+        <div className="px-6 py-4 border-b border-white/[0.06] bg-[#13151a] flex items-center gap-2">
+          <BookOpen className="w-5 h-5 text-orange-400" />
+          <h1 className="font-semibold text-slate-100">
             {currentSession?.title || 'Knowledge Base Chat'}
           </h1>
         </div>
@@ -164,11 +164,11 @@ export default function ChatPage() {
         <div className="flex-1 overflow-y-auto px-6 py-4 space-y-6">
           {messages.length === 0 && (
             <div className="flex flex-col items-center justify-center h-full text-center">
-              <div className="w-16 h-16 bg-primary-50 rounded-2xl flex items-center justify-center mb-4">
-                <BookOpen className="w-8 h-8 text-primary-600" />
+              <div className="w-16 h-16 bg-[#13151a] border border-white/[0.08] rounded-2xl flex items-center justify-center mb-4 shadow-xl">
+                <BookOpen className="w-8 h-8 text-orange-400" />
               </div>
-              <h2 className="text-xl font-semibold text-gray-900 mb-2">Ask anything</h2>
-              <p className="text-gray-500 max-w-sm text-sm">
+              <h2 className="text-xl font-semibold text-slate-100 mb-2">Ask anything</h2>
+              <p className="text-slate-200 max-w-sm text-sm">
                 Ask questions about your department's documents. I'll find relevant information and cite my sources.
               </p>
             </div>
@@ -180,14 +180,14 @@ export default function ChatPage() {
 
           {sending && (
             <div className="flex gap-3">
-              <div className="w-8 h-8 rounded-full bg-primary-100 flex items-center justify-center shrink-0">
-                <BookOpen className="w-4 h-4 text-primary-600" />
+              <div className="w-8 h-8 rounded-full bg-[#13151a] border border-white/[0.06] flex items-center justify-center shrink-0">
+                <BookOpen className="w-4 h-4 text-orange-400" />
               </div>
-              <div className="bg-gray-50 rounded-2xl rounded-tl-none px-4 py-3">
+              <div className="bg-[#13151a] border border-white/[0.06] rounded-2xl rounded-tl-none px-4 py-3 shadow-xl">
                 <div className="flex gap-1">
-                  <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                  <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                  <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                  <span className="w-2 h-2 bg-orange-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                  <span className="w-2 h-2 bg-orange-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                  <span className="w-2 h-2 bg-orange-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
                 </div>
               </div>
             </div>
@@ -197,8 +197,8 @@ export default function ChatPage() {
         </div>
 
         {/* Input */}
-        <div className="p-4 border-t border-gray-100">
-          <div className="flex items-end gap-3 bg-gray-50 rounded-2xl px-4 py-3 border border-gray-200 focus-within:border-primary-400 focus-within:ring-2 focus-within:ring-primary-100 transition-all">
+        <div className="p-4 border-t border-white/[0.06] bg-[#0d0f13]">
+          <div className="flex items-end gap-3 bg-[#13151a] rounded-2xl px-4 py-3 border border-white/[0.06] focus-within:border-orange-500/50 focus-within:ring-2 focus-within:ring-orange-500/10 transition-all">
             <textarea
               ref={textareaRef}
               value={input}
@@ -206,18 +206,18 @@ export default function ChatPage() {
               onKeyDown={handleKeyDown}
               placeholder="Ask a question about your documents..."
               rows={1}
-              className="flex-1 bg-transparent text-sm resize-none outline-none max-h-32"
+              className="flex-1 bg-transparent text-sm text-slate-100 placeholder-slate-400 resize-none outline-none max-h-32"
               style={{ minHeight: '24px' }}
             />
             <button
               onClick={sendMessage}
               disabled={!input.trim() || sending}
-              className="w-8 h-8 bg-primary-600 hover:bg-primary-700 disabled:bg-gray-300 text-white rounded-xl flex items-center justify-center transition-colors shrink-0"
+              className="w-8 h-8 bg-orange-500 hover:bg-orange-600 disabled:bg-white/[0.04] text-white disabled:text-slate-600 rounded-xl flex items-center justify-center transition-colors shrink-0 shadow-lg"
             >
               <Send className="w-4 h-4" />
             </button>
           </div>
-          <p className="text-xs text-gray-400 text-center mt-2">
+          <p className="text-xs text-slate-300 text-center mt-2">
             Press Enter to send, Shift+Enter for new line
           </p>
         </div>
@@ -233,8 +233,8 @@ function MessageBubble({ message }) {
     <div className={clsx('flex gap-3', isUser && 'flex-row-reverse')}>
       {/* Avatar */}
       <div className={clsx(
-        'w-8 h-8 rounded-full flex items-center justify-center shrink-0 text-xs font-bold',
-        isUser ? 'bg-primary-600 text-white' : 'bg-primary-100 text-primary-700'
+        'w-8 h-8 rounded-full flex items-center justify-center shrink-0 text-xs font-bold border',
+        isUser ? 'bg-orange-500 text-white border-orange-400/20' : 'bg-[#13151a] text-orange-400 border-white/[0.06]'
       )}>
         {isUser ? 'U' : 'AI'}
       </div>
@@ -242,17 +242,17 @@ function MessageBubble({ message }) {
       <div className={clsx('max-w-[75%] space-y-2', isUser && 'items-end flex flex-col')}>
         {/* Content */}
         <div className={clsx(
-          'px-4 py-3 rounded-2xl text-sm',
+          'px-4 py-3 rounded-2xl text-sm shadow-md',
           isUser
-            ? 'bg-primary-600 text-white rounded-tr-none'
-            : 'bg-gray-50 text-gray-800 rounded-tl-none border border-gray-100'
+            ? 'bg-orange-500 text-white rounded-tr-none'
+            : 'bg-[#13151a] text-slate-200 rounded-tl-none border border-white/[0.06]'
         )}>
           {isUser ? (
             <p className="whitespace-pre-wrap">{message.content}</p>
           ) : (
             <ReactMarkdown
               remarkPlugins={[remarkGfm]}
-              className="prose prose-sm max-w-none prose-p:my-1 prose-headings:my-2"
+              className="prose prose-sm max-w-none prose-invert prose-p:text-slate-200 prose-p:my-1 prose-headings:my-2 prose-strong:text-orange-400"
             >
               {message.content}
             </ReactMarkdown>
@@ -261,14 +261,14 @@ function MessageBubble({ message }) {
 
         {/* Citations */}
         {message.citations?.length > 0 && (
-          <div className="space-y-1">
-            <p className="text-xs text-gray-400 font-medium">Sources:</p>
+          <div className="space-y-1 w-full">
+            <p className="text-xs text-slate-300 font-medium">Sources:</p>
             {message.citations.map((c, i) => (
-              <div key={i} className="flex items-start gap-1.5 text-xs bg-blue-50 border border-blue-100 rounded-lg px-3 py-1.5">
-                <ExternalLink className="w-3 h-3 text-blue-500 mt-0.5 shrink-0" />
-                <span className="text-blue-700">
+              <div key={i} className="flex items-start gap-1.5 text-xs bg-[#171c26] border border-orange-500/10 rounded-lg px-3 py-1.5">
+                <ExternalLink className="w-3 h-3 text-orange-400 mt-0.5 shrink-0" />
+                <span className="text-slate-300">
                   <span className="font-medium">{c.title}</span>
-                  {c.page && <span className="text-blue-400"> · Page {c.page}</span>}
+                  {c.page && <span className="text-orange-400/80"> · Page {c.page}</span>}
                 </span>
               </div>
             ))}

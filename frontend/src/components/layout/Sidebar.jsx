@@ -34,24 +34,25 @@ export default function Sidebar() {
   }
 
   return (
-    <aside className="w-60 bg-white border-r border-gray-200 flex flex-col h-full shrink-0">
-      {/* Logo */}
-      <div className="p-5 border-b border-gray-100">
-        <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 bg-primary-600 rounded-lg flex items-center justify-center">
-            <BookOpen className="w-4 h-4 text-white" />
+    <aside className="w-60 bg-[#13151a] border-r border-white/[0.06] flex flex-col h-full shrink-0 text-slate-200">
+      {/* Logo Container */}
+      <div className="p-5 border-b border-white/[0.06] relative overflow-hidden">
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-orange-500/[0.01] to-transparent" />
+        <div className="relative flex items-center gap-2.5">
+          <div className="w-8 h-8 bg-orange-500/10 border border-orange-500/20 rounded-lg flex items-center justify-center shadow-inner">
+            <BookOpen className="w-4 h-4 text-orange-400" />
           </div>
           <div>
-            <p className="text-sm font-bold text-gray-900 leading-none">Enterprise KB</p>
-            <p className="text-[10px] text-gray-400 mt-0.5 uppercase tracking-wide">
+            <p className="text-sm font-bold text-slate-100 leading-none tracking-wide">Enterprise KB</p>
+            <p className="text-[10px] text-orange-400 mt-1 uppercase font-semibold tracking-wider">
               {user?.role === 'admin' ? 'Admin Panel' : 'Knowledge Base'}
             </p>
           </div>
         </div>
       </div>
 
-      {/* Nav */}
-      <nav className="flex-1 p-3 space-y-0.5">
+      {/* Main Navigation links */}
+      <nav className="flex-1 p-3 space-y-1">
         {nav.map(({ to, icon: Icon, label }) => (
           <NavLink
             key={to + label}
@@ -59,10 +60,10 @@ export default function Sidebar() {
             end={to === '/admin'}
             className={({ isActive }) =>
               clsx(
-                'flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors',
+                'flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150 border border-transparent',
                 isActive
-                  ? 'bg-primary-50 text-primary-700'
-                  : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+                  ? 'bg-orange-500/10 text-orange-400 border-orange-500/10 font-semibold shadow-sm'
+                  : 'text-slate-400 hover:bg-white/[0.03] hover:text-slate-100'
               )
             }
           >
@@ -72,15 +73,15 @@ export default function Sidebar() {
         ))}
       </nav>
 
-      {/* User footer */}
-      <div className="p-3 border-t border-gray-100">
-        <div className="px-3 py-2 mb-1">
-          <p className="text-sm font-medium text-gray-800 truncate">{user?.full_name}</p>
-          <p className="text-xs text-gray-400 truncate">{user?.department?.name || 'No department'}</p>
+      {/* User contextual footer info */}
+      <div className="p-3 border-t border-white/[0.06] bg-[#0d0f13]/40">
+        <div className="px-3 py-2 mb-2">
+          <p className="text-sm font-semibold text-slate-200 truncate">{user?.full_name}</p>
+          <p className="text-xs text-slate-500 font-medium truncate mt-0.5">{user?.department?.name || 'No department'}</p>
         </div>
         <button
           onClick={handleLogout}
-          className="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm font-medium text-red-600 hover:bg-red-50 transition-colors"
+          className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-sm font-medium text-rose-400 hover:bg-rose-500/10 border border-transparent hover:border-rose-500/10 transition-all duration-150"
         >
           <LogOut className="w-4 h-4" />
           Logout
