@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, BackgroundTasks
+from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from app.core.database import get_db
 from app.schemas.schemas import (
@@ -15,20 +15,19 @@ router = APIRouter(prefix="/auth", tags=["Authentication"])
 
 
 @router.post("/signup", response_model=dict, status_code=201)
-def signup(data: SignupRequest, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
+def signup(data: SignupRequest, db: Session = Depends(get_db)):
     user, token = AuthService.signup(db, data)
 
-    def send_email_task():
-        try:
-            send_verification_email(user.email, user.full_name, token)
-        except Exception as e:
-            print(f"\n{'='*60}")
-            print(f"[EMAIL FAILED] Error: {e}")
-            print(f"[EMAIL FAILED] Manual verification link for {user.email}:")
-            print(f"[EMAIL FAILED] {settings.FRONTEND_URL}/verify-email?token={token}")
-            print(f"{'='*60}\n")
+    # Send email directly (not in background) so it completes before response
+    try:
+        send_verification_email(user.email, user.full_name, token)
+    except Exception as e:
+        print(f"\n{'='*60}")
+        print(f"[EMAIL FAILED] Error: {e}")
+        print(f"[EMAIL FAILED] Manual verification link for {user.email}:")
+        print(f"[EMAIL FAILED] {settings.FRONTEND_URL}/verify-email?token={token}")
+        print(f"{'='*60}\n")
 
-    background_tasks.add_task(send_email_task)
     return {
         "message": "Registration successful. Please check your email to verify your account.",
         "user_id": user.id
@@ -66,21 +65,14 @@ def logout(current_user: User = Depends(get_current_user)):
 
 @router.post("/test-email", response_model=dict)
 def test_email(email: str, db: Session = Depends(get_db)):
-    """
-    Test Gmail SMTP config.
-    Usage: POST /api/v1/auth/test-email?email=you@gmail.com
-    Then check your inbox (and spam folder).
-    """
+    """Test Gmail SMTP. Usage: POST /api/v1/auth/test-email?email=you@gmail.com"""
     from app.services.email_service import _send_email
     try:
-        _send_email(
-            email,
-            "Test Email - Enterprise KB",
-            "<h2>✅ Gmail SMTP is working!</h2><p>Your email configuration is correct.</p>"
-        )
-        return {"message": f"Test email sent to {email}. Check your inbox and spam folder."}
+        _send_email(email, "Test Email - Enterprise KB",
+                    "<h2>✅ Gmail SMTP is working!</h2><p>Your email config is correct.</p>")
+        return {"message": f"Test email sent to {email}"}
     except Exception as e:
         return {
             "error": str(e),
-            "tip": "Make sure MAIL_PASSWORD is a Gmail App Password (not your login password). Get one at https://myaccount.google.com/apppasswords"
+            "tip": "Make sure MAIL_PASSWORD is a Gmail App Password, not your login password."
         }
