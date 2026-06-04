@@ -18,22 +18,11 @@ export default function ChatPage() {
   const [messages, setMessages] = useState([])
   const [input, setInput] = useState('')
   const [sending, setSending] = useState(false)
-
-  /*
-   * ISSUE 1 — Sessions sidebar is always visible on all screen sizes.
-   * On mobile (320–767px) it takes up 256px of a ~375px viewport, leaving
-   * only ~119px for the chat area — completely unusable.
-   *
-   * FIX — The sidebar is now a drawer on mobile/tablet. `sidebarOpen` drives
-   * its visibility. It defaults open on desktop (≥1024px). The sidebar slides
-   * in/out on smaller screens using a CSS transform.
-   */
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
   const messagesEndRef = useRef(null)
   const textareaRef = useRef(null)
 
-  // Auto-open sidebar on desktop, auto-close on mobile
   useEffect(() => {
     const mq = window.matchMedia('(min-width: 1024px)')
     setSidebarOpen(mq.matches)
@@ -143,73 +132,45 @@ export default function ChatPage() {
 
   const newChat = () => {
     navigate('/chat')
-    // Close sidebar drawer on mobile after navigation
     if (window.innerWidth < 1024) setSidebarOpen(false)
   }
 
   const handleSessionClick = (id) => {
     navigate(`/chat/${id}`)
-    // Close drawer on mobile after picking a session
     if (window.innerWidth < 1024) setSidebarOpen(false)
   }
 
   return (
-    /*
-     * ISSUE 2 — Root `flex h-full` with no overflow control lets children
-     * expand beyond the viewport on mobile, causing page-level horizontal scroll.
-     *
-     * FIX — `overflow-hidden` on the root container clips all children to the
-     * viewport. Each scrollable zone (sidebar list, message list) manages its
-     * own overflow independently.
-     */
-    <div className="flex h-full bg-[#0d0f13] text-slate-200 overflow-hidden relative">
-
-      {/*
-       * ─── SESSIONS SIDEBAR ────────────────────────────────────────────────
-       *
-       * ISSUE 3 — `w-64` sidebar is always in the document flow. On mobile it
-       * consumes 256px leaving almost nothing for chat content.
-       *
-       * FIX — On mobile/tablet (<1024px) the sidebar is position:fixed and
-       * slides in from the left as a drawer (translate-x transform). A backdrop
-       * overlay closes it when tapped outside. On desktop (≥1024px) it is
-       * static in flow as before.
-       */}
-
-      {/* Backdrop — only visible on mobile/tablet when sidebar is open */}
+    <div className="flex h-[calc(100vh-64px)] lg:h-screen w-full bg-[#0d0f13] text-slate-200 overflow-hidden relative">
+      
+      {/* Sidebar Backdrop Overlay */}
       {sidebarOpen && (
         <div
-          className="fixed inset-0 z-20 bg-black/60 backdrop-blur-sm lg:hidden"
+          className="fixed inset-0 z-40 bg-black/70 backdrop-blur-sm lg:hidden"
           onClick={() => setSidebarOpen(false)}
           aria-hidden="true"
         />
       )}
 
+      {/* Sessions Drawer */}
       <aside
         className={clsx(
-          // Positioning — fixed drawer on mobile, static on desktop
-          'fixed lg:static inset-y-0 left-0 z-30 lg:z-auto',
-          // Width
+          'fixed lg:static inset-y-0 left-0 z-50 lg:z-auto',
           'w-72 sm:w-80 lg:w-64',
-          // Slide in/out on mobile
           'transition-transform duration-300 ease-in-out',
           sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0',
-          // Surface
           'bg-[#13151a] flex flex-col h-full border-r border-white/[0.06]',
-          // Shrink only on desktop (in flow)
           'lg:shrink-0'
         )}
       >
-        {/* Close button — visible only on mobile inside the drawer */}
-        <div className="flex items-center justify-between p-3 lg:block">
+        <div className="flex items-center justify-between p-3 shrink-0">
           <button
             onClick={newChat}
-            className="flex-1 lg:w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-orange-400 bg-orange-500/10 border border-orange-500/20 hover:bg-orange-500/20 transition-colors"
+            className="flex-1 flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-orange-400 bg-orange-500/10 border border-orange-500/20 hover:bg-orange-500/20 transition-colors"
           >
             <Plus className="w-4 h-4 shrink-0" />
             New Chat
           </button>
-          {/* Drawer close — mobile only */}
           <button
             onClick={() => setSidebarOpen(false)}
             className="lg:hidden ml-2 p-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-white/[0.04] transition-colors"
@@ -219,13 +180,6 @@ export default function ChatPage() {
           </button>
         </div>
 
-        {/*
-         * ISSUE 4 — Session list has `overflow-y-auto` but no `flex-1` min-h.
-         * On short mobile viewports the list overflows its container.
-         *
-         * FIX — `flex-1 min-h-0` ensures the list shrinks to fit, and
-         * `overflow-y-auto` handles the scroll correctly inside a flex column.
-         */}
         <div className="flex-1 min-h-0 overflow-y-auto px-2 pb-2 space-y-0.5">
           {sessions.length === 0 && (
             <p className="text-xs text-slate-500 text-center mt-6 px-4">
@@ -264,25 +218,11 @@ export default function ChatPage() {
         </div>
       </aside>
 
-      {/* ─── MAIN CHAT AREA ──────────────────────────────────────────────── */}
-      {/*
-       * ISSUE 5 — `flex-1 flex flex-col` with no `min-w-0` means this column
-       * can expand beyond the viewport when the sidebar is in flow.
-       *
-       * FIX — `min-w-0` prevents a flex child from overflowing its parent.
-       */}
-      <div className="flex-1 min-w-0 flex flex-col bg-[#0d0f13]">
+      {/* Main Chat Work Area */}
+      <div className="flex-1 min-w-0 flex flex-col h-full bg-[#0d0f13] relative z-10">
 
-        {/* ── Header ──────────────────────────────────────────────────────── */}
-        {/*
-         * ISSUE 6 — Header has `px-6` padding on all screens. On a 320px phone
-         * the title clips and there's no way to open the session list.
-         *
-         * FIX — Reduced padding on mobile (`px-3 sm:px-6`). Added a hamburger
-         * button to open the session drawer on mobile/tablet.
-         */}
-        <div className="px-3 sm:px-6 py-3 sm:py-4 border-b border-white/[0.06] bg-[#13151a] flex items-center gap-2 sm:gap-3 shrink-0">
-          {/* Drawer toggle — hidden on desktop where sidebar is always visible */}
+        {/* Header */}
+        <div className="w-full px-3 sm:px-6 py-3 sm:py-4 border-b border-white/[0.06] bg-[#13151a] flex items-center gap-2 sm:gap-3 shrink-0">
           <button
             onClick={() => setSidebarOpen(true)}
             className="lg:hidden p-1.5 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-white/[0.04] transition-colors shrink-0"
@@ -292,24 +232,12 @@ export default function ChatPage() {
           </button>
 
           <BookOpen className="w-5 h-5 text-orange-400 shrink-0" />
-          {/*
-           * ISSUE 7 — Title has no truncation. Long session titles overflow the
-           * header on mobile, causing horizontal scroll or text spill.
-           *
-           * FIX — `truncate min-w-0` on the heading.
-           */}
           <h1 className="font-semibold text-slate-100 truncate min-w-0 text-sm sm:text-base">
             {currentSession?.title || 'Knowledge Base Chat'}
           </h1>
         </div>
 
-        {/* ── Messages ────────────────────────────────────────────────────── */}
-        {/*
-         * ISSUE 8 — `px-6` padding on messages area causes text to be very
-         * cramped on narrow screens (320px - 6*2*4px = only 272px text width).
-         *
-         * FIX — Responsive padding: `px-3 sm:px-4 md:px-6`.
-         */}
+        {/* Message Stream */}
         <div className="flex-1 min-h-0 overflow-y-auto px-3 sm:px-4 md:px-6 py-4 space-y-5 sm:space-y-6">
           {messages.length === 0 && (
             <div className="flex flex-col items-center justify-center h-full text-center px-4">
@@ -318,7 +246,7 @@ export default function ChatPage() {
               </div>
               <h2 className="text-lg sm:text-xl font-semibold text-slate-100 mb-2">Ask anything</h2>
               <p className="text-slate-400 max-w-xs sm:max-w-sm text-sm">
-                Ask questions about your department's documents. I'll find relevant information and cite my sources.
+                Ask questions about your department's documents.
               </p>
             </div>
           )}
@@ -345,51 +273,33 @@ export default function ChatPage() {
           <div ref={messagesEndRef} />
         </div>
 
-        {/* ── Input Bar ───────────────────────────────────────────────────── */}
-        {/*
-         * ISSUE 9 — Input area `p-4` is fine on desktop but on mobile the
-         * combined textarea + button can overflow or feel cramped. The hint
-         * text "Press Enter to send..." is irrelevant on mobile (no keyboard
-         * shortcut concept) and takes up precious vertical space.
-         *
-         * FIX — Tighter padding on mobile (`p-2 sm:p-4`). Hint text hidden
-         * on mobile (`hidden sm:block`). Textarea gets a min-height that
-         * works for touch targets.
-         */}
-        <div className="p-2 sm:p-4 border-t border-white/[0.06] bg-[#0d0f13] shrink-0">
+        {/* Chat Input Bar Box */}
+        <div className="w-full p-3 sm:p-4 border-t border-white/[0.06] bg-[#0d0f13] shrink-0 relative z-10">
           <div className="flex items-end gap-2 sm:gap-3 bg-[#13151a] rounded-2xl px-3 sm:px-4 py-2 sm:py-3 border border-white/[0.06] focus-within:border-orange-500/50 focus-within:ring-2 focus-within:ring-orange-500/10 transition-all">
             <textarea
               ref={textareaRef}
               value={input}
               onChange={e => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder="Ask a question about your documents..."
+              placeholder="Ask a question..."
               rows={1}
-              className="flex-1 bg-transparent text-sm text-slate-100 placeholder-slate-500 resize-none outline-none max-h-32"
-              /*
-               * ISSUE 10 — `minHeight: '24px'` is too small for mobile touch
-               * targets (Apple HIG recommends 44px minimum). On Android/iOS
-               * the tap target is too small for comfortable use.
-               *
-               * FIX — 44px min-height on mobile ensures a comfortable touch
-               * target, scaled back to 24px on sm+ where a keyboard is present.
-               */
-              style={{ minHeight: 'clamp(24px, 5vw, 44px)' }}
+              className="flex-1 bg-transparent text-sm text-slate-100 placeholder-slate-500 resize-none outline-none max-h-24 py-1"
+              style={{ minHeight: '24px' }}
             />
             <button
               onClick={sendMessage}
               disabled={!input.trim() || sending}
-              className="w-8 h-8 sm:w-9 sm:h-9 bg-orange-500 hover:bg-orange-600 disabled:bg-white/[0.04] text-white disabled:text-slate-600 rounded-xl flex items-center justify-center transition-colors shrink-0 shadow-lg"
+              className="w-9 h-9 bg-orange-500 hover:bg-orange-600 disabled:bg-white/[0.04] text-white disabled:text-slate-600 rounded-xl flex items-center justify-center transition-colors shrink-0 shadow-lg"
               aria-label="Send message"
             >
-              <Send className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+              <Send className="w-4 h-4" />
             </button>
           </div>
-          {/* Keyboard hint — irrelevant on touchscreen; hidden on mobile */}
           <p className="hidden sm:block text-xs text-slate-500 text-center mt-2">
             Press Enter to send · Shift+Enter for new line
           </p>
         </div>
+
       </div>
     </div>
   )
@@ -399,23 +309,7 @@ function MessageBubble({ message }) {
   const isUser = message.role === 'user'
 
   return (
-    /*
-     * ISSUE 11 — `gap-3` between avatar and bubble is consistent but on
-     * 320px screens the avatar + gap + bubble exceeds the container.
-     * `max-w-[75%]` on the bubble means the user message bubble
-     * + the 32px avatar + 12px gap = ~260px on a 320px screen — OK, but
-     * citations inside can still overflow because they are `w-full` with
-     * no overflow control.
-     *
-     * FIX — Tighter avatar gap on mobile (`gap-2 sm:gap-3`). Avatar hidden
-     * on very small screens (<360px) via `hidden xs:flex` would be ideal
-     * but instead we reduce avatar size on mobile. Citations get
-     * `overflow-hidden` to prevent text overflow. Bubble max-width is
-     * adjusted to be slightly wider on mobile for readability
-     * (`max-w-[88%] sm:max-w-[75%]`).
-     */
-    <div className={clsx('flex gap-2 sm:gap-3', isUser && 'flex-row-reverse')}>
-      {/* Avatar */}
+    <div className={clsx('flex gap-2 sm:gap-3 w-full min-w-0', isUser && 'flex-row-reverse')}>
       <div
         className={clsx(
           'w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center shrink-0 text-xs font-bold border',
@@ -427,28 +321,12 @@ function MessageBubble({ message }) {
         {isUser ? 'U' : 'AI'}
       </div>
 
-      {/*
-       * ISSUE 12 — `max-w-[75%]` is too narrow on mobile: it makes the AI
-       * response bubble very skinny (~230px on 375px screen), forcing lots
-       * of wrapping and making Markdown content (tables, code blocks) clip.
-       *
-       * FIX — `max-w-[88%] sm:max-w-[80%] lg:max-w-[75%]` — wider on
-       * small screens, standard on desktop.
-       */}
       <div
         className={clsx(
-          'max-w-[88%] sm:max-w-[80%] lg:max-w-[75%] space-y-2 min-w-0',
+          'max-w-[85%] sm:max-w-[80%] lg:max-w-[75%] space-y-2 min-w-0',
           isUser && 'items-end flex flex-col'
         )}
       >
-        {/* Bubble */}
-        {/*
-         * ISSUE 13 — The bubble has no `overflow-hidden` or `break-words`.
-         * Long unbroken strings (URLs, code) overflow the bubble and cause
-         * horizontal scroll on mobile.
-         *
-         * FIX — Added `break-words overflow-hidden` to the bubble.
-         */}
         <div
           className={clsx(
             'px-3 sm:px-4 py-2.5 sm:py-3 rounded-2xl text-sm shadow-md break-words overflow-hidden w-full',
@@ -469,15 +347,6 @@ function MessageBubble({ message }) {
           )}
         </div>
 
-        {/* Citations */}
-        {/*
-         * ISSUE 14 — Citation cards are `w-full` with no overflow control.
-         * On narrow screens the citation text (title + page) can overflow
-         * its card. The ExternalLink icon has no shrink-0 so it squishes.
-         *
-         * FIX — `overflow-hidden` on the card, `truncate` on the title,
-         * `shrink-0` retained on icon. Added `min-w-0` to the text span.
-         */}
         {message.citations?.length > 0 && (
           <div className="space-y-1 w-full min-w-0">
             <p className="text-xs text-slate-400 font-medium">Sources:</p>
