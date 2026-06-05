@@ -1,204 +1,296 @@
-# Enterprise Knowledge Base v2
-### Zero GPU · All Cloud APIs · ~50MB RAM
+<div align="center">
+
+<br />
+
+```
+ ██╗   ██╗ █████╗ ██╗   ██╗██╗  ████████╗███╗   ███╗██╗███╗   ██╗██████╗
+ ██║   ██║██╔══██╗██║   ██║██║  ╚══██╔══╝████╗ ████║██║████╗  ██║██╔══██╗
+ ██║   ██║███████║██║   ██║██║     ██║   ██╔████╔██║██║██╔██╗ ██║██║  ██║
+ ╚██╗ ██╔╝██╔══██║██║   ██║██║     ██║   ██║╚██╔╝██║██║██║╚██╗██║██║  ██║
+  ╚████╔╝ ██║  ██║╚██████╔╝███████╗██║   ██║ ╚═╝ ██║██║██║ ╚████║██████╔╝
+   ╚═══╝  ╚═╝  ╚═╝ ╚═════╝ ╚══════╝╚═╝   ╚═╝     ╚═╝╚═╝╚═╝  ╚═══╝╚═════╝
+```
+
+### Enterprise Knowledge Base · AI-Powered Document Chat
+
+<br />
+
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.111-009688?style=for-the-badge&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
+[![React](https://img.shields.io/badge/React-18-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://reactjs.org)
+[![PostgreSQL](https://img.shields.io/badge/Neon_PostgreSQL-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)](https://neon.tech)
+[![Pinecone](https://img.shields.io/badge/Pinecone-Vector_DB-000000?style=for-the-badge)](https://pinecone.io)
+[![Vercel](https://img.shields.io/badge/Vercel-Deployed-000000?style=for-the-badge&logo=vercel)](https://vercel.com)
+[![Render](https://img.shields.io/badge/Render-Deployed-46E3B7?style=for-the-badge&logo=render&logoColor=black)](https://render.com)
+
+<br />
+
+> **Chat with your company's documents.** VaultMind is a full-stack RAG platform that lets employees ask questions about internal documents in plain English — with department-based access control, approval workflows, and cited answers showing exactly which document and page the answer came from.
+
+<br />
+
+[Features](#-features) · [Architecture](#️-architecture) · [Tech Stack](#️-tech-stack) · [Project Structure](#-project-structure) · [Database Schema](#️-database-schema) · [Security](#-security)
+
+</div>
 
 ---
 
-## What changed from v1
+## ✨ Features
 
-| Component | v1 | v2 |
-|---|---|---|
-| sentence-transformers | ✅ Local (~600MB RAM) | ❌ Removed |
-| ChromaDB | ✅ Local (~100MB RAM) | ❌ Removed |
-| Embeddings | Local model | **Voyage AI API** (free) |
-| Vector DB | ChromaDB (local) | **Pinecone API** (free) |
-| Database | SQLite | **Neon PostgreSQL** (free) |
-| Email | Gmail SMTP | **Gmail SMTP** (same) |
-| **Total RAM** | **~750MB** | **~50MB** |
+<table>
+<tr>
+<td width="50%" valign="top">
 
----
+### 👤 For Employees
 
-## Services to sign up for (all free)
+- 💬 **Chat with documents** — ask questions in plain English
+- 📎 **Cited answers** — every response links back to source document and page number
+- 🗂️ **Persistent chat history** — sessions saved like ChatGPT, pick up where you left off
+- 🏢 **Department access control** — only see documents relevant to your team
+- 🔄 **Department change requests** — submit a request to move departments
 
-### 1. Neon PostgreSQL
-1. Go to **https://neon.tech** → Sign up free
-2. Create a project (e.g. "enterprise-kb")
-3. Go to **Dashboard → Connection Details**
-4. Copy the **Connection string**:
-   ```
-   postgresql://user:password@ep-xxx.us-east-2.aws.neon.tech/neondb?sslmode=require
-   ```
+</td>
+<td width="50%" valign="top">
 
-### 2. Pinecone (Vector DB)
-1. Go to **https://pinecone.io** → Sign up free
-2. Go to **Console → API Keys** → copy your key
-3. The index `enterprise-kb` is **auto-created on first startup**
+### 🛡️ For Admins
 
-### 3. Voyage AI (Embeddings)
-1. Go to **https://voyageai.com** → Sign up free
-2. Go to **Dashboard → API Keys** → Create a key
-3. Free tier: **50 million tokens/month** (very generous)
+- 📤 **Document upload** — supports PDF, DOCX, TXT, and XLSX
+- 👥 **User management** — approve or reject new registrations
+- 🏛️ **Department management** — create, edit, and manage departments
+- 📊 **Analytics dashboard** — system-wide usage overview
+- ✅ **Approval workflow** — review and action department change requests
 
-### 4. OpenRouter (LLM)
-1. Go to **https://openrouter.ai** → Sign up
-2. Go to **Dashboard → API Keys** → Create key
-3. To use **completely free**: set `OPENROUTER_MODEL=google/gemma-2-9b-it:free`
-4. Or add $5 credits for `mistralai/mistral-7b-instruct` (lasts months)
+</td>
+</tr>
+</table>
 
-### 5. Gmail (Email — same as before)
-1. Enable 2FA: https://myaccount.google.com/security
-2. Create App Password: https://myaccount.google.com/apppasswords
-3. Paste the 16-char password into `.env`
+### ⚙️ System Capabilities
 
----
-
-## Setup (Windows)
-
-### Backend
-
-```cmd
-cd backend
-python -m venv venv
-venv\Scripts\activate
-pip install -r requirements.txt
-```
-
-Copy and edit `.env`:
-```cmd
-copy .env.example .env
-```
-
-Fill in your keys:
-```env
-DATABASE_URL=postgresql://user:pass@ep-xxx.neon.tech/neondb?sslmode=require
-PINECONE_API_KEY=pcsk_xxxxxxx
-VOYAGE_API_KEY=pa-xxxxxxx
-OPENROUTER_API_KEY=sk-or-xxxxxxx
-OPENROUTER_MODEL=google/gemma-2-9b-it:free
-MAIL_USERNAME=yourgmail@gmail.com
-MAIL_PASSWORD=xxxx xxxx xxxx xxxx
-MAIL_FROM=yourgmail@gmail.com
-SECRET_KEY=paste-random-string-here
-```
-
-Generate SECRET_KEY:
-```cmd
-python -c "import secrets; print(secrets.token_urlsafe(32))"
-```
-
-Start backend:
-```cmd
-uvicorn app.main:app --reload --port 8000
-```
-
-Expected output:
-```
-✅ Neon PostgreSQL connected
-✅ Database tables ready
-✅ Pinecone Index 'enterprise-kb' ready
-✅ Upload directory ready
-✅ Admin created: admin@company.com
-INFO: Uvicorn running on http://127.0.0.1:8000
-```
-
-### Frontend
-
-```cmd
-cd frontend
-npm install
-npm run dev
-```
-
-Open: **http://localhost:5173**
-
----
-
-## Default Admin
-
-| Field | Value |
+| Capability | Details |
 |---|---|
-| Email | admin@company.com |
-| Password | Admin@123456 |
+| 🔐 Authentication | JWT access tokens (60 min) + refresh tokens (7 days) |
+| 📧 Email verification | Sent automatically on signup |
+| 🧠 Context-aware RAG | Resolves pronouns ("they", "it") using full chat history |
+| 🛡️ RBAC | Role-based access control — Admin / Employee |
+| ☁️ Cloud-native | ~50 MB RAM footprint, no GPU required |
 
 ---
 
-## Test Email Config
-
-After starting, visit:
-```
-http://localhost:8000/docs
-→ POST /api/v1/auth/test-email?email=your@gmail.com
-```
-Check inbox (and spam).
-
----
-
-## Common Issues
-
-**Pinecone first startup slow (~30s):**
-Normal — it's creating the index. Subsequent starts are instant.
-
-**Neon first query slow:**
-Free tier pauses after inactivity. Reconnects automatically.
-
-**Email not received:**
-- Make sure `MAIL_PASSWORD` is a Gmail **App Password**, not your login password
-- Check spam folder
-- Use the test-email endpoint to debug
-
-**OpenRouter 402 error:**
-Switch to free model: `OPENROUTER_MODEL=google/gemma-2-9b-it:free`
-
-**Voyage AI 401:**
-Check `VOYAGE_API_KEY` starts with `pa-`
-
----
-
-## RAG Pipeline
+## 🔄 How It Works
 
 ```
-User question
-     ↓
-Build contextualized query (resolves pronouns using chat history)
-     ↓
-Voyage AI API → embed query (1024-dim vector)
-     ↓
-Pinecone API → top-3 chunks (filtered by department_id)
-     ↓
-OpenRouter API → LLM generates answer with citations
-     ↓
-Save to Neon PostgreSQL (session + messages + access logs)
+  Employee asks ──▶  "What is the leave policy?"
+                              │
+                              ▼
+              ┌───────────────────────────────┐
+              │  Build contextualized query   │
+              │  (resolves "they", "it" via   │
+              │   chat history)               │
+              └───────────────┬───────────────┘
+                              │
+                    Voyage AI embeddings
+                              │
+                              ▼
+              ┌───────────────────────────────┐
+              │         Pinecone              │
+              │  Top 3 chunks, filtered by    │
+              │  department_id                │
+              └───────────────┬───────────────┘
+                              │
+                    Groq / OpenRouter LLM
+                              │
+                              ▼
+  AI answers ◀──  "Employees receive 20 annual leaves
+                   [Source: Leave Policy.pdf, Page 3]"
 ```
 
 ---
 
-## Project Structure
+## 🏗️ Architecture
 
 ```
-enterprise-kb-v2/
+┌──────────────────────────────────────────────────────────────┐
+│                         Frontend                             │
+│                  React 18 + Vite + Tailwind                  │
+│                       Hosted on Vercel                       │
+└─────────────────────────┬────────────────────────────────────┘
+                          │ HTTPS
+┌─────────────────────────▼────────────────────────────────────┐
+│                          Backend                             │
+│                      FastAPI (Python)                        │
+│                       Hosted on Render                       │
+└────┬──────────────┬──────────────┬──────────────┬────────────┘
+     │              │              │              │
+     ▼              ▼              ▼              ▼
+  Neon          Pinecone       Voyage AI       Groq /
+PostgreSQL      Vector DB      Embeddings    OpenRouter
+(relational)  (similarity    (1024-dim      (LLM answer
+              search +        vectors)       generation)
+              dept filter)
+```
+
+---
+
+## 🛠️ Tech Stack
+
+| Layer | Technology | Purpose |
+|---|---|---|
+| **Frontend** | React 18 + Vite | UI framework |
+| **Styling** | Tailwind CSS | Utility-first CSS |
+| **State** | Zustand | Auth state management |
+| **Data Fetching** | TanStack Query | Server state + caching |
+| **Backend** | FastAPI (Python) | REST API |
+| **Database** | Neon PostgreSQL | Relational data storage |
+| **ORM** | SQLAlchemy | Database abstraction |
+| **Vector DB** | Pinecone | Semantic similarity search |
+| **Embeddings** | Voyage AI | Text → 1024-dim vector |
+| **LLM** | Groq / OpenRouter | AI answer generation |
+| **Auth** | JWT + bcrypt | Secure authentication |
+| **Email** | SMTP | Transactional emails |
+| **Hosting FE** | Vercel | Frontend deployment |
+| **Hosting BE** | Render | Backend deployment |
+
+---
+
+## 📁 Project Structure
+
+```
+vaultmind/
 ├── backend/
 │   ├── app/
 │   │   ├── api/
-│   │   │   ├── deps.py              # JWT auth guard
+│   │   │   ├── deps.py                   # JWT auth guards
 │   │   │   └── routes/
-│   │   │       ├── auth.py          # signup, login, verify
-│   │   │       ├── admin.py         # user/dept management
-│   │   │       ├── documents.py     # upload, list, delete
-│   │   │       ├── chat.py          # sessions, messages
-│   │   │       └── users.py         # profile, dept requests
+│   │   │       ├── auth.py               # signup, login, verify email
+│   │   │       ├── admin.py              # user & department management
+│   │   │       ├── documents.py          # upload, list, delete
+│   │   │       ├── chat.py               # sessions & messages
+│   │   │       └── users.py              # profile & department requests
+│   │   │
 │   │   ├── core/
-│   │   │   ├── config.py            # all settings
-│   │   │   ├── database.py          # Neon PostgreSQL
-│   │   │   └── security.py          # JWT + bcrypt
-│   │   ├── models/models.py         # all DB tables
-│   │   ├── schemas/schemas.py       # all Pydantic schemas
+│   │   │   ├── config.py                 # all settings from .env
+│   │   │   ├── database.py               # Neon PostgreSQL connection
+│   │   │   └── security.py               # JWT & password hashing
+│   │   │
+│   │   ├── models/
+│   │   │   └── models.py                 # all database tables
+│   │   │
+│   │   ├── schemas/
+│   │   │   └── schemas.py                # Pydantic request/response schemas
+│   │   │
 │   │   └── services/
-│   │       ├── auth_service.py      # signup/login logic
-│   │       ├── chat_service.py      # RAG pipeline
-│   │       ├── document_service.py  # text extraction + chunking
-│   │       ├── embedding_service.py # Voyage AI API
-│   │       ├── vector_store.py      # Pinecone API
-│   │       └── email_service.py     # Gmail SMTP
+│   │       ├── auth_service.py           # signup/login business logic
+│   │       ├── chat_service.py           # full RAG pipeline
+│   │       ├── document_service.py       # text extraction + chunking
+│   │       ├── embedding_service.py      # Voyage AI API calls
+│   │       ├── vector_store.py           # Pinecone store & retrieve
+│   │       └── email_service.py          # Resend + SMTP email
+│   │
 │   ├── .env.example
 │   └── requirements.txt
-└── frontend/                        # React + Vite (unchanged)
+│
+└── frontend/
+    ├── src/
+    │   ├── api/
+    │   │   └── client.js                 # axios instance + all API calls
+    │   │
+    │   ├── store/
+    │   │   └── authStore.js              # Zustand auth state
+    │   │
+    │   ├── pages/
+    │   │   ├── LoginPage.jsx
+    │   │   ├── SignupPage.jsx
+    │   │   ├── ChatPage.jsx
+    │   │   ├── DocumentsPage.jsx
+    │   │   ├── ProfilePage.jsx
+    │   │   └── admin/
+    │   │       ├── AdminDashboard.jsx
+    │   │       ├── AdminUsers.jsx
+    │   │       ├── AdminDepartments.jsx
+    │   │       └── AdminDocuments.jsx
+    │   │
+    │   └── components/
+    │       └── layout/
+    │           ├── AppLayout.jsx
+    │           ├── Sidebar.jsx
+    │           ├── PrivateRoute.jsx
+    │           └── AdminRoute.jsx
+    │
+    ├── vercel.json
+    └── package.json
 ```
+
+---
+
+## 🗄️ Database Schema
+
+```
+departments
+    │
+    ├─── users (many)
+    │         └─── chat_sessions (many)
+    │                    └─── messages (many)
+    │                              └─── [citations stored as JSON]
+    │
+    ├─── documents (many)
+    │         └─── document_access_logs (many)
+    │
+    └─── department_change_requests (many)
+```
+
+| Table | Description |
+|---|---|
+| `users` | Employees and admins — stores role, status, and department |
+| `departments` | HR, Engineering, Finance, etc. |
+| `documents` | Uploaded files with processing status |
+| `chat_sessions` | Conversation threads per user |
+| `messages` | Individual messages with citations stored as JSON |
+| `document_access_logs` | Full audit trail of every document retrieval |
+| `department_change_requests` | Transfer requests with pending / approved / rejected status |
+
+---
+
+## 🔒 Security
+
+| Mechanism | Details |
+|---|---|
+| **Password hashing** | bcrypt with per-user salt |
+| **JWT tokens** | Access tokens expire in 60 min; refresh tokens in 7 days |
+| **Department isolation** | Pinecone queries are hard-filtered by `department_id` |
+| **Role guards** | All admin routes are protected server-side |
+| **Approval workflow** | New users cannot access any resource until manually approved by an admin |
+| **Audit logging** | Every document retrieval is recorded in `document_access_logs` |
+
+---
+
+## 🚀 RAG Pipeline (In Depth)
+
+```
+1. QUERY CONTEXTUALIZATION
+   User message + last N chat messages
+   → LLM rewrites ambiguous query into a standalone question
+   → "What did they decide?" becomes "What did the board decide in the Q3 meeting?"
+
+2. EMBEDDING
+   Contextualized query → Voyage AI API
+   → 1024-dimensional float vector
+
+3. RETRIEVAL
+   Vector + department_id filter → Pinecone
+   → Top 3 most semantically similar document chunks
+
+4. GENERATION
+   System prompt + retrieved chunks + user question → Groq / OpenRouter
+   → Grounded answer with inline citations
+
+5. PERSISTENCE
+   Answer + citations (doc title + page number) → Neon PostgreSQL
+   Session and message saved; access log entry created
+```
+
+---
+
+<div align="center">
+
+Built with ♥ using **FastAPI** · **React** · **Pinecone** · **Voyage AI** · **Groq**
+
+</div>
